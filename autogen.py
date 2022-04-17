@@ -69,8 +69,8 @@ with open(f"{working_dir}/models.py", "a+") as models_file:        # ? https://s
             break
         elif is_abstract_user.lower() == 'n':
             user_model = 'User'
-            is_user_model_extended = input("Do yo have any other model which extends the auth_user model? (y / n): ")
             while True:
+                is_user_model_extended = input("Do you have any other model which extends the auth_user model? (y / n): ")
                 if is_user_model_extended.lower() == 'y' or is_user_model_extended.lower() == 'n':
                     break
                 else:
@@ -478,7 +478,7 @@ f"""\n    def __str__(self):
         return str(self.id)
 """)
     ##### ! ONLY FOR SFTDOX - 1 #####
-    if 'sft_dms' in working_dir:
+    if 'sft_dms' in working_dir.split('\\')[-2].lower() if '\\' in working_dir else working_dir.split('/')[-2].lower():
         models_file.write(
 f"""\n    def get_name(self):
         return str(self.name)
@@ -503,13 +503,14 @@ f"""\n    class Meta:
 """)
 
 ##### ! ONLY FOR SFTDOX -2 #####
-with open(f"{working_dir}/models.py", "r") as models_file:
-    read_models_file = models_file.read()
+if 'sft_dms' in working_dir.split('\\')[-2].lower() if '\\' in working_dir else working_dir.split('/')[-2].lower():
+    with open(f"{working_dir}/models.py", "r") as models_file:
+        read_models_file = models_file.read()
 
-with open(f"{working_dir}/models.py", "w+") as models_file:
-    if not "exposed_request  = ''".lower() in read_models_file.lower():
-        models_file.write(f"""\nexposed_request  = ''\n""")
-    models_file.write(read_models_file)
+    with open(f"{working_dir}/models.py", "w+") as models_file:
+        if not "exposed_request  = ''".lower() in read_models_file.lower():
+            models_file.write(f"""exposed_request  = ''\n\n""")
+        models_file.write(read_models_file)
 #!############# ENDS - 2 ##############
 
 
