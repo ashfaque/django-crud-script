@@ -200,9 +200,6 @@ while True:
             if related_name_initial == '':
                 related_name_initial = model_name
             with open(f"{working_dir}/models.py", "a+") as models_file:
-            #     if not "from django.conf import settings".lower() in read_models_file.lower():    # * feel free to remove these
-            #         models_file.write(f"""from django.conf import settings\n""")
-            #     models_file.write(read_models_file)
 # modelsfile.seek(0, 2)    # ? Seeking to end of file
                 if is_timezone.lower() == 'y':
                     models_file.write(
@@ -376,8 +373,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                 if is_choice.lower() == 'y':
                     models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
                 models_file.write(f"""blank=True, null=True, """)
-                if default == 'None': models_file.write(f"""default={default}""")
-                else: models_file.write(f"""default='{default}'""")
+                models_file.write(f"""default={default}""")
                 models_file.write(f""")""")
             break    # ? Inside `if field_type == 4:` which breaks inner while loop.
 
@@ -433,8 +429,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                 if is_choice.lower() == 'y':
                     models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
                 models_file.write(f"""blank=True, null=True, """)
-                if default == 'None': models_file.write(f"""default={default}""")
-                else: models_file.write(f"""default='{default}'""")
+                models_file.write(f"""default={default}""")
                 models_file.write(f""")""")
             break    # ? Inside `if field_type == 5:` which breaks inner while loop.
 
@@ -485,7 +480,7 @@ f"""\n    def __str__(self):
     ##### ! ONLY FOR SFTDOX - 1 #####
     if 'sft_dms' in working_dir:
         models_file.write(
-f"""\n\n    def get_name(self):
+f"""\n    def get_name(self):
         return str(self.name)
 
     def save(self, *args, **kwargs):
@@ -503,7 +498,7 @@ f"""\n\n    def get_name(self):
 """)
     #!############# ENDS - 1 ##############
     models_file.write(
-f"""\n\n    class Meta:
+f"""\n    class Meta:
         db_table = '{table_name}'
 """)
 
