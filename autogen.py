@@ -9,6 +9,7 @@ print("By Ashfaque Alam".center(120," ")+"\n\n")
 # ! CHECK IF THESE VARIABLES ARE VALID OR NOT
 # ! choice for only model creation or full model, slizer, views, url creation?
 # ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
+# ! define a function for the above reason and call it everytime.
 # ? Taking working directory input from user
 while True:
     working_dir = input("Copy & Paste the path of DJANGO APP from file explorer with drive letter.\nDjango App Path: ")
@@ -106,6 +107,14 @@ with open(f"{working_dir}/models.py", "w") as models_file:
     if not "from django.db import models".lower() in read_models_file.lower():
         models_file.write(f"""from django.db import models\n""")
     models_file.write(read_models_file)
+
+if is_timezone.lower() == 'y':
+    with open(f"{working_dir}/models.py", "r") as models_file:
+        read_models_file = models_file.read()
+    with open(f"{working_dir}/models.py", "w") as models_file:
+        if not "from django.utils import timezone".lower() in read_models_file.lower():
+            models_file.write(f"""from django.utils import timezone\n""")
+        models_file.write(read_models_file)
 
 with open(f"{working_dir}/models.py", "r") as models_file:
     read_models_file = models_file.read()
@@ -267,12 +276,14 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             while True:
                 is_choice = input("Do you want it to be a choice field? (y / n): ")
                 if is_choice.lower() == 'y':
-                    choice_values = input("Enter choice values separated by spaces: ")
-                    choice_values_list = choice_values.split(" ")
+                    print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
+                    print("Example:- value:value,another value:another value,yet another value:yet another value")
+                    choice_values = input("Enter choice values like shown in the above example: ")
+                    choice_values_list = choice_values.split(",")
                     with open(f"{working_dir}/models.py", "a+") as models_file:
                         models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                         for each_choice in choice_values_list:
-                            models_file.write(f"""\n        ('{each_choice.lower()}', '{each_choice.lower()}'),""")
+                            models_file.write(f"""\n        ('{each_choice.split(':')[0].lower()}', '{each_choice.split(':')[1].lower()}'),""")
                         models_file.write(f"""\n    )""")
                     break
                 elif is_choice.lower() == 'n': break
@@ -310,36 +321,209 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 
 
         elif field_type == 3:    # ? Adding TextField
-            # Default want?
-            break
+            with open(f"{working_dir}/models.py", "a+") as models_file:
+                models_file.write(f"""\n    {field_name} = models.TextField(blank=True, null=True)""")
+            break    # ? Inside `if field_type == 3:` which breaks inner while loop.
+
+
         elif field_type == 4:    # ? Adding IntegerField
-            # Default want?
-            break
+            while True:
+                is_choice = input("Do you want it to be a choice field? (y / n): ")
+                if is_choice.lower() == 'y':
+                    while True:
+                        print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
+                        print("Example:- 1:value,2:another value,3:yet another value")
+                        choice_values = input("Enter choice values like shown in above example: ")
+                        choice_pair_values_list = choice_values.split(",")
+                        pattern = re.compile("[0-9]+")
+                        all_int_flag = 1
+                        # ? check if key is integer or not: https://stackoverflow.com/a/48940855/16377463    https://stackoverflow.com/a/9266979/16377463
+                        for each in choice_pair_values_list:
+                            if pattern.fullmatch(each.split(':')[0]) is None:
+                                print("Please enter only integers.")
+                                all_int_flag = 0
+                                break
+                        if all_int_flag == 1:
+                            break
+
+                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                        models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
+                        for each_choice in choice_pair_values_list:
+                            models_file.write(f"""\n        ('{each_choice.split(':')[0]}', '{each_choice.split(':')[1].lower()}'),""")
+                        models_file.write(f"""\n    )""")
+                    break
+                elif is_choice.lower() == 'n': break
+                else: print("Invalid choice !!!. Please enter either y or n.")
+            while True:
+                want_default = input("Do you want any default value? (y / n): ")
+                if want_default.lower() == 'y':
+                    while True:
+                        default = input("Enter default value: ")
+                        # ? Checking if user entered default value is integer or not.
+                        pattern = re.compile("[0-9]+")
+                        if pattern.fullmatch(default) is None:
+                            print("Please enter only integers.")
+                            continue
+                        break
+                    break
+                elif want_default.lower() == 'n':
+                    default = 'None'
+                    break
+                else: print("Invalid choice !!!. Please enter either y or n.")
+
+            with open(f"{working_dir}/models.py", "a+") as models_file:
+                models_file.write(f"""\n    {field_name} = models.IntegerField(""")
+                if is_choice.lower() == 'y':
+                    models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
+                models_file.write(f"""blank=True, null=True, """)
+                if default == 'None': models_file.write(f"""default={default}""")
+                else: models_file.write(f"""default='{default}'""")
+                models_file.write(f""")""")
+            break    # ? Inside `if field_type == 4:` which breaks inner while loop.
+
+
         elif field_type == 5:    # ? Adding FloatField
-            # Default want?
-            break
+            while True:
+                is_choice = input("Do you want it to be a choice field? (y / n): ")
+                if is_choice.lower() == 'y':
+                    while True:
+                        print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
+                        print("Example:- 1.1:value,2.1:another value,3.1:yet another value")
+                        choice_values = input("Enter choice values like shown in above example: ")
+                        choice_pair_values_list = choice_values.split(",")
+                        pattern = re.compile("[0-9.]+")
+                        all_float_flag = 1
+                        # ? Check if user entered choice key value is float or not
+                        for each in choice_pair_values_list:
+                            if pattern.fullmatch(each.split(':')[0]) is None:
+                                print("Please enter only float.")
+                                all_float_flag = 0
+                                break
+                        if all_float_flag == 1:
+                            break
+
+                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                        models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
+                        for each_choice in choice_pair_values_list:
+                            # ? Adding 0 to the starting and ending of the key it it starts with a dot (.)
+                            models_file.write(f"""\n        ('{each_choice.split(':')[0] if not (each_choice.split(':')[0][0] == '.') and not (each_choice.split(':')[0][-1] == '.') else ('0' + each_choice.split(':')[0]) if (each_choice.split(':')[0][0] == '.') else (each_choice.split(':')[0] + '0') if (each_choice.split(':')[0][-1] == '.') else "0.0"}', '{each_choice.split(':')[1].lower()}'),""")
+                        models_file.write(f"""\n    )""")
+                    break
+                elif is_choice.lower() == 'n': break
+                else: print("Invalid choice !!!. Please enter either y or n.")
+            while True:
+                want_default = input("Do you want any default value? (y / n): ")
+                if want_default.lower() == 'y':
+                    while True:
+                        default = input("Enter default value: ")
+                        # ? Checking if user entered default value is float or not.
+                        pattern = re.compile("[0-9.]+")
+                        if pattern.fullmatch(default) is None:
+                            print("Please enter only float value.")
+                            continue
+                        break
+                    break
+                elif want_default.lower() == 'n':
+                    default = 'None'
+                    break
+                else: print("Invalid choice !!!. Please enter either y or n.")
+
+            with open(f"{working_dir}/models.py", "a+") as models_file:
+                models_file.write(f"""\n    {field_name} = models.FloatField(""")
+                if is_choice.lower() == 'y':
+                    models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
+                models_file.write(f"""blank=True, null=True, """)
+                if default == 'None': models_file.write(f"""default={default}""")
+                else: models_file.write(f"""default='{default}'""")
+                models_file.write(f""")""")
+            break    # ? Inside `if field_type == 5:` which breaks inner while loop.
+
+
         elif field_type == 6:    # ? Adding BooleanField
-            # Default want?
-            break
+            while True:
+                default = input("Enter default value True or False (t / f): ")
+                if default.lower() == 't':
+                    default = 'True'
+                    break
+                elif default.lower() == 'f':
+                    default = 'False'
+                    break
+                else: print("Invalid default value !!!. Please enter either t or f.")
+
+            with open(f"{working_dir}/models.py", "a+") as models_file:
+                models_file.write(f"""\n    {field_name} = models.BooleanField(default={default})""")
+            break    # ? Inside `if field_type == 6:` which breaks inner while loop.
+
+
         elif field_type == 7:    # ? Adding DateTimeField
-            # Default want?
-            # timezone_yes_no = input("Do you want time zone based fiedls? : ")
-            # user wrong i/p check
-            # ! ask for auto add now?
+            while True:
+                is_auto_add_now = input("Do you want it to add current time by default? (y / n): ")
+                if is_auto_add_now.lower() == 'y':
+                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                        if is_timezone.lower() == 'y': models_file.write(f"""\n    {field_name} = models.DateTimeField(default=timezone.now, blank=True, null=True)""")
+                        else: models_file.write(f"""\n    {field_name} = models.DateTimeField(auto_now_add=True, blank=True, null=True)""")
+                        break
+                elif is_auto_add_now.lower() == 'n':
+                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                        models_file.write(f"""\n    {field_name} = models.DateTimeField(blank=True, null=True)""")
+                    break
+                else: print("Invalid default value !!!. Please enter either y or n.")
             break
+
+
         else:
             print("\nEnter valid choice!!!")
 
     if field_type == 0:    # ? Breaks out of the outer while loop of field_type / field_name.
         break
 
-# ! other app models import or import dj etc???
-# ? slizer view urls append as well
-# ! choice option list
+with open(f"{working_dir}/models.py", "a+") as models_file:
+    models_file.write(
+f"""\n    def __str__(self):
+        return str(self.id)
+""")
+    ##### ! ONLY FOR SFTDOX - 1 #####
+    if 'sft_dms' in working_dir:
+        models_file.write(
+f"""\n\n    def get_name(self):
+        return str(self.name)
 
+    def save(self, *args, **kwargs):
+        loggedin_user = exposed_request.user
+
+        from sft_docs.base_functions import save_user_action
+        pk = self.pk
+        super().save( *args, **kwargs)
+
+        # After insert or update action
+        action='create'
+        if pk:
+            action='update'
+        save_user_action(loggedin_user, self, action=action)
+""")
+    #!############# ENDS - 1 ##############
+    models_file.write(
+f"""\n\n    class Meta:
+        db_table = '{table_name}'
+""")
+
+##### ! ONLY FOR SFTDOX -2 #####
+with open(f"{working_dir}/models.py", "r") as models_file:
+    read_models_file = models_file.read()
+
+with open(f"{working_dir}/models.py", "w+") as models_file:
+    if not "exposed_request  = ''".lower() in read_models_file.lower():
+        models_file.write(f"""\nexposed_request  = ''\n""")
+    models_file.write(read_models_file)
+#!############# ENDS - 2 ##############
 
 
 # ! AFTER MODEL CREATION MAKE CODE READABLE
+# ? slizer view urls append as well
+
+
+
+
 
 
 '''
@@ -375,3 +559,17 @@ class MainActivity : AppCompatActivity() {{
 # ? https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9
 # ? pip install auto-py-to-exe
 # ? auto-py-to-exe (Enter), in settings - change output location.
+
+
+# with open(f"{working_dir}/models.py", "r") as models_file:
+#     read_models_file = models_file.read()
+
+# with open(f"{working_dir}/models.py", "w+") as models_file:
+#     if not "from django.db import models".lower() in read_models_file.lower():
+#         models_file.write(
+# f"""from django.db import models
+# \n""")
+#     models_file.write(read_models_file)
+
+# with open(f"{working_dir}/models.py", "a+") as models_file:
+#     models_file.write(f""" """)
