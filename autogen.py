@@ -10,6 +10,7 @@ print("By Ashfaque Alam".center(120," ")+"\n\n")
 # ! choice for only model creation or full model, slizer, views, url creation?
 # ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
 # ! define a function for the above reason and call it everytime.
+# ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
 # ? Taking working directory input from user
 while True:
     working_dir = input("Copy & Paste the path of DJANGO APP from file explorer with drive letter.\nDjango App Path: ")
@@ -70,6 +71,8 @@ with open(f"{working_dir}/models.py", "a+") as models_file:        # ? https://s
         elif is_abstract_user.lower() == 'n':
             user_model = 'User'
             while True:
+                # ! Actually TCoreUserDetails is not being extended its just a fkey which they can give as user input.
+                # ! Basemodel in sftdox is extended, AuthUser is extended. Take that i/p.
                 is_user_model_extended = input("Do you have any other model which extends the auth_user model? (y / n): ")
                 if is_user_model_extended.lower() == 'y' or is_user_model_extended.lower() == 'n':
                     break
@@ -234,7 +237,9 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             with open(f"{working_dir}/models.py", "r") as models_file:
                 read_models_file = models_file.read()
                 models_file.seek(read_models_file.index(f"class {model_name}(models.Model):"), 0)    # ? https://pynative.com/python-file-seek/#:~:text=The%20allowed    offset = after how many characters including space and newline as 1 char, whence = 0 -> starting of file, 1 -> current position, 2 -> End of file.
+                #print("----------------",read_models_file.index(f"class {model_name}(models.Model):"))
                 read_models_file = models_file.read()    # ? This time it will read after the seek position.
+                #print("########################",read_models_file)    # ! For some reason its also reads a few line above this model
                 if f"{field_name} = models.".lower() in read_models_file.lower():
                     print(f"Field {field_name} already exists in model {model_name}. Please enter a different name.")
                 else: break
