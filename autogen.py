@@ -1,17 +1,25 @@
 # os.rename(f"{working_dir}/models1.py", f"{working_dir}/models.py")
 # ! CHECK IF THESE VARIABLES ARE VALID OR NOT
+# ! also create entries in admin.py, take bkup of it as well
 # ! choice for only model creation or full model, slizer, views, url creation?
 # ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
 # ! define a function for the above reason and call it everytime.
 # ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
+# ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
 # ! ------------------------------------------------------------------------------------------------------------------------
+
+
+
+def checkExit(variable : str):
+    if variable == '0':
+        exit()
 
 
 
 def main():
 
     import os, re
-    from sys import platform
+    from sys import platform, exit
 
     print("\n\n"+"########## DJANGO MASTER API CREATOR ##########".center(120," ")+"\n")
     print("By Ashfaque Alam".center(120," ")+"\n\n")
@@ -20,11 +28,15 @@ def main():
     # ? Taking working directory input from user
     while True:
         working_dir = input("Copy & Paste the path of DJANGO APP from file explorer with drive letter.\nDjango App Path: ")
-        if working_dir and working_dir[0] == "\"" and working_dir[-1] == "\"":      # ? If first & last char of path is " then it will be removed.
+        checkExit(working_dir)
+        if working_dir \
+            and ( \
+                (working_dir[0] == "\"" and working_dir[-1] == "\"") \
+                or (working_dir[0] == "\'" and working_dir[-1] == "\'") \
+        ):      # ? If first & last char of path is " or ' then it will be removed.
             working_dir=working_dir[1:-1]
-        if working_dir and working_dir[0] == "\'" and working_dir[-1] == "\'":      # ? If first & last char of path is ' then it will be removed.
-            working_dir=working_dir[1:-1]
-        if platform == "win32":
+
+        if platform == "win32":    # ? If OS is Windows.
             if working_dir and working_dir[0].isalpha() and working_dir[1]==":" and (working_dir[2]=="\\" or working_dir[2]=="/"):      # ? If 1st char is case insensitive alphabet, 2nd char is a `:` & 3rd char is a `/` or `\`.
                 if os.path.exists(working_dir[:3]):         # ? Check if drive letter exists.
                     if os.path.isfile(working_dir):         # ? Check if user given path points to a file ?
@@ -38,19 +50,36 @@ def main():
                     print("\n\n##### DRIVE LETTER DOESN'T EXIST #####")
             else:
                 print("\n\n##### PLEASE ENTER VALID DIRECTORY PATH #####")
-        elif platform == "linux" or platform == "linux2" or platform == "darwin":
-            ...
+
+        elif platform == "linux" or platform == "linux2" or platform == "darwin":    # ? Checking if user OS is Linux or macOS.
+            if os.path.isfile(working_dir):         # ? Check if user given path points to a file ?
+                print("\n\n##### GIVEN PATH POINTS TO A FILE. PLEASE ENTER A VALID DIRECTORY PATH #####")
+                continue
+            elif not os.path.isdir(working_dir):      # ? If user given path doesn't have existing directory. It will create one.
+                print("\n\n##### DIR DOESN'T EXIST #####")
+            elif os.path.exists(working_dir):
+                break
+            else:
+                print("\n\n##### PLEASE ENTER VALID DIRECTORY PATH #####")
+
+        else:
+            print("\n\n!!!!! UNSUPPORTED OPERATING SYSTEM !!!!!")
+
 
 
     app_name = working_dir.split('\\')[-1] if '\\' in working_dir else working_dir.split('/')[-1]
+
+
+    # * ################################################ Models Generation #################################################
 
     # ? Making a backup of user models file
     with open(f"{working_dir}/models.py", "r") as readModelsFile:
         with open(f"{working_dir}/models.py.bak", "w") as readModelsBakFile:
             readModelsBakFile.write(readModelsFile.read())
-    # ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
 
 
+
+    # ? Generating new model in models.py file
     with open(f"{working_dir}/models.py", "a+") as models_file:        # ? https://stackoverflow.com/questions/1466000/difference-between-modes-a-a-w-w-and-r-in-built-in-open-function
         models_file.seek(0)                                            # ? Move file pointer to the beginning of the file.
         read_modelsfile = models_file.read()
@@ -58,49 +87,58 @@ def main():
         # ? Taking timezone info from user
         while True:
             is_timezone = input("Does your project contains timezone based fields? (y / n): ")
+            checkExit(is_timezone)
             if is_timezone.lower() == 'y' or is_timezone.lower() == 'n':
                 break
             else:
                 print("\nInvalid input!!! Enter either y or n.")
 
+
         # ? Taking abstract user info from user
         while True:
             is_abstract_user = input("Does your project contains AbstractUser based User model? (y / n): ")
+            checkExit(is_abstract_user)
             if is_abstract_user.lower() == 'y':
                 working_dir_list = working_dir.split('\\') if '\\' in working_dir else working_dir.split('/')
                 proj_dir_name = working_dir_list[-2]
                 working_dir_list[-1] = working_dir_list[-2]
                 proj_dir_path = '\\'.join(working_dir_list)
-                with open(f"{proj_dir_path}/settings.py", "r") as settings_file:
-                    read_settings_file = settings_file.read()
-                if 'AUTH_USER_MODEL' in read_settings_file:
-                    user_model = 'settings.AUTH_USER_MODEL'
-                else:
+                try:
+                    with open(f"{proj_dir_path}/settings.py", "r") as settings_file:
+                        read_settings_file = settings_file.read()
+                    if 'AUTH_USER_MODEL' in read_settings_file:
+                        user_model = 'settings.AUTH_USER_MODEL'
+                except:
                     user_model = input("Enter AbstractUser model name: ")
+                    checkExit(user_model)
                     user_model_app_name = input("Enter abstract user model app name: ")
+                    checkExit(user_model_app_name)
+                    # user_model = user_model_app_name + '.' + user_model
                 break
+
             elif is_abstract_user.lower() == 'n':
                 user_model = 'User'
                 while True:
-                    # ! Actually TCoreUserDetails is not being extended its just a fkey which they can give as user input.
-                    # ! Basemodel in sftdox is extended, AuthUser is extended. Take that i/p.
                     is_user_model_extended = input("Do you have any other model which extends the auth_user model? (y / n): ")
+                    checkExit(is_user_model_extended)
                     if is_user_model_extended.lower() == 'y' or is_user_model_extended.lower() == 'n':
                         break
                     else:
                         print("\nInvalid input!!! Enter either y or n.")
                 if is_user_model_extended.lower() == 'y':
-                    extended_user_model_name = input("Enter extended user model name: ")
+                    extended_user_model_name = input("Enter extended user model name: ")    # ? E.g., TCoreUserDetails which has a one-to-one relationship with User model.
+                    checkExit(extended_user_model_name)
                     extended_user_model_app_name = input("Enter extended user model APP name: ")
+                    checkExit(extended_user_model_app_name)
                 break
             else:
                 print("\nInvalid input!!! Enter either y or n.")
 
+
         # ? Taking model name as user input and writing it in the models.py file
         while True:
             model_name = input("Enter model name to create: ")
-            if model_name == '0':
-                break
+            checkExit(model_name)
             if not "class " + model_name.lower() in read_modelsfile.lower():
                 break
             else: print(f"\nModel {model_name} already exists in app {app_name}. Try a different name.")
@@ -110,36 +148,27 @@ def main():
 f"""\n\n\nclass {model_name}(models.Model):
 """)
 
-    #### * or we can do this in one file, https://stackoverflow.com/a/49546923/16377463    https://www.skillsugar.com/how-to-prepend-content-to-a-file-in-python    https://www.quora.com/How-can-I-write-text-in-the-first-line-of-an-existing-file-using-Python
-    # ? https://stackoverflow.com/a/49546923/16377463
-    # * If this line doesn't exists then it copies all data of file to a variable and write at the beginning and paste all the contents from the variable to the file.
 
-    # ? If import doesn't exist it writes then paste old content after that
+
+    # ? https://stackoverflow.com/a/49546923/16377463
+    # ? https://www.skillsugar.com/how-to-prepend-content-to-a-file-in-python
+    # ? https://www.quora.com/How-can-I-write-text-in-the-first-line-of-an-existing-file-using-Python
+    # ? https://stackoverflow.com/a/49546923/16377463
+
+    # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
     with open(f"{working_dir}/models.py", "r") as models_file:
         read_models_file = models_file.read()
     with open(f"{working_dir}/models.py", "w") as models_file:
         if not "from django.db import models".lower() in read_models_file.lower():
             models_file.write(f"""from django.db import models\n""")
-        models_file.write(read_models_file)
 
-    if is_timezone.lower() == 'y':
-        with open(f"{working_dir}/models.py", "r") as models_file:
-            read_models_file = models_file.read()
-        with open(f"{working_dir}/models.py", "w") as models_file:
+        if is_timezone.lower() == 'y':
             if not "from django.utils import timezone".lower() in read_models_file.lower():
                 models_file.write(f"""from django.utils import timezone\n""")
-            models_file.write(read_models_file)
 
-    with open(f"{working_dir}/models.py", "r") as models_file:
-        read_models_file = models_file.read()
-    with open(f"{working_dir}/models.py", "w") as models_file:
         if not "from .models import *".lower() in read_models_file.lower():
             models_file.write(f"""from .models import *\n""")
-        models_file.write(read_models_file)
 
-    with open(f"{working_dir}/models.py", "r") as models_file:
-        read_models_file = models_file.read()
-    with open(f"{working_dir}/models.py", "w") as models_file:
         if 'settings'.lower() in user_model.lower():
             if not "from django.conf import settings".lower() in read_models_file.lower():
                 models_file.write(f"""from django.conf import settings\n""")
@@ -147,9 +176,13 @@ f"""\n\n\nclass {model_name}(models.Model):
             if not "from django.contrib.auth.models import User".lower() in read_models_file.lower():
                 models_file.write(f"""from django.contrib.auth.models import User\n""")
         else:
-            if not f"from {user_model_app_name}.models import {user_model}".lower() in read_models_file.lower():
-                models_file.write(f"""from {user_model_app_name}.models import {user_model}\n""")
+            try:
+                if not f"from {user_model_app_name}.models import {user_model}".lower() in read_models_file.lower():
+                    models_file.write(f"""from {user_model_app_name}.models import {user_model}\n""")
+            except: ...
+
         models_file.write(read_models_file)
+
 
 
     # ? Taking table name from user
@@ -157,27 +190,22 @@ f"""\n\n\nclass {model_name}(models.Model):
         read_models_file = models_file.read()
     while True:
         table_name = input("Enter database table name: ")
-        if table_name == '0':
-            break
+        checkExit(table_name)
         table_name_lower = "\'" + table_name.lower() + "\'"
         # if "db_table = " + table_name_lower or "db_table =" + table_name_lower or "db_table= " + table_name_lower or "db_table=" + table_name_lower in read_modelsfile.lower():
-        if "db_table = " + table_name_lower in read_models_file.lower():
-            print(f"\nTable {table_name} already exists in app {app_name}. Try a different name.")
-            continue
-        if "db_table =" + table_name_lower in read_models_file.lower():
-            print(f"\nTable {table_name} already exists in app {app_name}. Try a different name.")
-            continue
-        if "db_table= " + table_name_lower in read_models_file.lower():
-            print(f"\nTable {table_name} already exists in app {app_name}. Try a different name.")
-            continue
-        if "db_table=" + table_name_lower in read_models_file.lower():
+        if ("db_table = " + table_name_lower in read_models_file.lower()) \
+        or ("db_table =" + table_name_lower in read_models_file.lower()) \
+        or ("db_table= " + table_name_lower in read_models_file.lower()) \
+        or ("db_table=" + table_name_lower in read_models_file.lower()):
             print(f"\nTable {table_name} already exists in app {app_name}. Try a different name.")
             continue
         # modelsfile.seek(0, 2)
-        # ! write table name later
+        # ? Database table name appended later in the code.
         break
 
-    # ? Taking field type & name from user
+
+
+    # ? Taking field type & name from user and appending it in models.py file.
     print("\n##### AUTOGENERATED FIELDS - is_deleted, deleted_at, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by #####")
     while True:
         while True:
@@ -241,9 +269,8 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 
             while True:
                 field_name = input("Enter field name: ")
+                checkExit(field_name)
                 field_name = field_name.lower()
-                if field_name == '0':
-                    break
                 # ? Finding if user input field name exists in current model. [By setting seek() position at current model starting position and finding afterwards. So, it will not look for the field_name in previous models.]
                 with open(f"{working_dir}/models.py", "r") as models_file:
                     read_models_file = models_file.read()
@@ -260,12 +287,14 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             if field_type == 1:    # ? Adding Foreign key field
                 related_name = f'{field_name}_{model_name.lower()}'
                 is_user_fkey = input("Is it a user model foreign key? (y / n): ")
+                checkExit(is_user_fkey)
                 if is_user_fkey.lower() == 'y':
                     with open(f"{working_dir}/models.py", "a+") as models_file:
                         models_file.write(f"""\n    {field_name} = models.ForeignKey({user_model}, on_delete=models.CASCADE, null=True, blank=True, related_name='{related_name}')""")
                     print(f"\nUsing model {user_model} for foreign key relationship.")
                 else:
                     fkey_model = input("Enter foreign key model name: ")
+                    checkExit(fkey_model)
                     # ? Checking if the foreign key model exists in same file.
                     with open(f"{working_dir}/models.py", "r") as models_file:
                         read_models_file = models_file.read()
@@ -273,6 +302,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     if not "class " + fkey_model.lower() + "(" in read_models_file.lower():
                         print(f"The model {fkey_model} doesn't exists in the models file of {app_name}.")
                         fkey_model_app = input(f"Enter APP name of model {fkey_model}: ")
+                        checkExit(fkey_model_app)
                         with open(f"{working_dir}/models.py", "r") as models_file:
                             read_models_file = models_file.read()
                         with open(f"{working_dir}/models.py", "w") as models_file:
@@ -288,10 +318,12 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             elif field_type == 2:    # ? Adding CharField
                 while True:
                     is_choice = input("Do you want it to be a choice field? (y / n): ")
+                    checkExit(is_choice)
                     if is_choice.lower() == 'y':
                         print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
                         print("Example:- value:value,another value:another value,yet another value:yet another value")
                         choice_values = input("Enter choice values like shown in the above example: ")
+                        checkExit(choice_values)
                         choice_values_list = choice_values.split(",")
                         with open(f"{working_dir}/models.py", "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
@@ -303,8 +335,10 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     else: print("Invalid choice !!!. Please enter either y or n.")
                 while True:
                     want_default = input("Do you want any default value? (y / n): ")
+                    checkExit(want_default)
                     if want_default.lower() == 'y':
                         default = input("Enter default value: ")
+                        checkExit(default)
                         break
                     elif want_default.lower() == 'n':
                         default = 'None'
@@ -312,6 +346,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     else: print("Invalid choice !!!. Please enter either y or n.")
                 while True:
                     max_length = input("Enter max_length: ")
+                    checkExit(max_length)
                     # ? Checking if max_length only contains integers. https://stackoverflow.com/a/57012038/16377463
                     pattern = re.compile("[0-9]+")
                     if pattern.fullmatch(max_length) is None:
@@ -342,11 +377,13 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             elif field_type == 4:    # ? Adding IntegerField
                 while True:
                     is_choice = input("Do you want it to be a choice field? (y / n): ")
+                    checkExit(is_choice)
                     if is_choice.lower() == 'y':
                         while True:
                             print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
                             print("Example:- 1:value,2:another value,3:yet another value")
                             choice_values = input("Enter choice values like shown in above example: ")
+                            checkExit(choice_values)
                             choice_pair_values_list = choice_values.split(",")
                             pattern = re.compile("[0-9]+")
                             all_int_flag = 1
@@ -369,9 +406,11 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     else: print("Invalid choice !!!. Please enter either y or n.")
                 while True:
                     want_default = input("Do you want any default value? (y / n): ")
+                    checkExit(want_default)
                     if want_default.lower() == 'y':
                         while True:
                             default = input("Enter default value: ")
+                            checkExit(default)
                             # ? Checking if user entered default value is integer or not.
                             pattern = re.compile("[0-9]+")
                             if pattern.fullmatch(default) is None:
@@ -397,11 +436,13 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             elif field_type == 5:    # ? Adding FloatField
                 while True:
                     is_choice = input("Do you want it to be a choice field? (y / n): ")
+                    checkExit(is_choice)
                     if is_choice.lower() == 'y':
                         while True:
                             print("\nEnter choices separated by COMMA with key value pair separated by a colon.")
                             print("Example:- 1.1:value,2.1:another value,3.1:yet another value")
                             choice_values = input("Enter choice values like shown in above example: ")
+                            checkExit(choice_values)
                             choice_pair_values_list = choice_values.split(",")
                             pattern = re.compile("[0-9.]+")
                             all_float_flag = 1
@@ -425,9 +466,11 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     else: print("Invalid choice !!!. Please enter either y or n.")
                 while True:
                     want_default = input("Do you want any default value? (y / n): ")
+                    checkExit(want_default)
                     if want_default.lower() == 'y':
                         while True:
                             default = input("Enter default value: ")
+                            checkExit(default)
                             # ? Checking if user entered default value is float or not.
                             pattern = re.compile("[0-9.]+")
                             if pattern.fullmatch(default) is None:
@@ -453,6 +496,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             elif field_type == 6:    # ? Adding BooleanField
                 while True:
                     default = input("Enter default value True or False (t / f): ")
+                    checkExit(default)
                     if default.lower() == 't':
                         default = 'True'
                         break
@@ -469,6 +513,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
             elif field_type == 7:    # ? Adding DateTimeField
                 while True:
                     is_auto_add_now = input("Do you want it to add current time by default? (y / n): ")
+                    checkExit(is_auto_add_now)
                     if is_auto_add_now.lower() == 'y':
                         with open(f"{working_dir}/models.py", "a+") as models_file:
                             if is_timezone.lower() == 'y': models_file.write(f"""\n    {field_name} = models.DateTimeField(default=timezone.now, blank=True, null=True)""")
@@ -487,6 +532,8 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 
         if field_type == 0:    # ? Breaks out of the outer while loop of field_type / field_name.
             break
+
+
 
     with open(f"{working_dir}/models.py", "a+") as models_file:
         models_file.write(
