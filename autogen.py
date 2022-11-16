@@ -217,6 +217,7 @@ f"""\n\n\nclass {model_name}(models.Model):
                     FloatField - press 5
                     BooleanField - press 6
                     DateTimeField - press 7
+                    DateField - press 8
                     Finish model creation - press 0
                     """)
                 #    EmailField - press 8
@@ -522,6 +523,23 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     elif is_auto_add_now.lower() == 'n':
                         with open(f"{working_dir}/models.py", "a+") as models_file:
                             models_file.write(f"""\n    {field_name} = models.DateTimeField(blank=True, null=True)""")
+                        break
+                    else: print("Invalid default value !!!. Please enter either y or n.")
+                break
+
+
+            elif field_type == 8:    # ? Adding DateField
+                while True:
+                    is_auto_add_now = input("Do you want it to add current time by default? (y / n): ")
+                    checkExit(is_auto_add_now)
+                    if is_auto_add_now.lower() == 'y':
+                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                            if is_timezone.lower() == 'y': models_file.write(f"""\n    {field_name} = models.DateField(default=timezone.now, blank=True, null=True)""")
+                            else: models_file.write(f"""\n    {field_name} = models.DateField(auto_now_add=True, blank=True, null=True)""")
+                            break
+                    elif is_auto_add_now.lower() == 'n':
+                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                            models_file.write(f"""\n    {field_name} = models.DateField(blank=True, null=True)""")
                         break
                     else: print("Invalid default value !!!. Please enter either y or n.")
                 break
