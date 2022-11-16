@@ -231,19 +231,25 @@ f"""\n\n\nclass {model_name}(models.Model):
                     if i.isupper() == True:
                         related_name_initial += i.lower()
                 while True:
-                    if "related_name = " + "\'" + related_name_initial in read_models_file.lower():
-                        related_name_initial += 'a'    # ? Initial of my name :P
-                    elif "related_name =" + "\'" + related_name_initial in read_models_file.lower():
-                        related_name_initial += 'a'    # ? Initial of my name :P
-                    elif "related_name= " + "\'" + related_name_initial in read_models_file.lower():
-                        related_name_initial += 'a'    # ? Initial of my name :P
-                    elif "related_name = " + "\'" + related_name_initial in read_models_file.lower():
+                    # REMOVE THIS COMMENTS LATER.
+                    # if "related_name = " + "\'" + related_name_initial in read_models_file.lower():
+                    #     related_name_initial += 'a'    # ? Initial of my name :P
+                    # elif "related_name =" + "\'" + related_name_initial in read_models_file.lower():
+                    #     related_name_initial += 'a'    # ? Initial of my name :P
+                    # elif "related_name= " + "\'" + related_name_initial in read_models_file.lower():
+                    #     related_name_initial += 'a'    # ? Initial of my name :P
+                    # elif "related_name = " + "\'" + related_name_initial in read_models_file.lower():
+                    #     related_name_initial += 'a'    # ? Initial of my name :P
+                    if ("related_name = " + "\'" + related_name_initial in read_models_file.lower()) \
+                    or ("related_name =" + "\'" + related_name_initial in read_models_file.lower()) \
+                    or ("related_name= " + "\'" + related_name_initial in read_models_file.lower()) \
+                    or ("related_name = " + "\'" + related_name_initial in read_models_file.lower()):
                         related_name_initial += 'a'    # ? Initial of my name :P
                     else: break
                 if related_name_initial == '':
                     related_name_initial = model_name
                 with open(f"{working_dir}/models.py", "a+") as models_file:
-    # modelsfile.seek(0, 2)    # ? Seeking to end of file
+                    # modelsfile.seek(0, 2)    # ? Seeking to end of file
                     if is_timezone.lower() == 'y':
                         models_file.write(
 f"""\n    is_deleted = models.BooleanField(default=False)
