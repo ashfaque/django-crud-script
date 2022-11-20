@@ -7,6 +7,13 @@
 # ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
 # ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
 # ! support for SSCRM and PMS like dj apps
+# ! support for linux + macos + windows
+# ! in the end convert this .py file to .exe file and give it to the user.
+# ! Make well documented code as you might need to edit this file later so you can do it easily later on.
+# ! have interactive messages for the user to see the progress of execution of code.
+# ? https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9
+# ? pip install auto-py-to-exe
+# ? auto-py-to-exe (Enter), in settings - change output location.
 # ! ------------------------------------------------------------------------------------------------------------------------
 
 
@@ -567,7 +574,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 f"""\n    def __str__(self):
         return str(self.id)
 """)
-        ##### ! ONLY FOR SFTDOX - 1 #####
+        # ? ONLY FOR SFTDox - 1 #
         if 'sft_dms' in working_dir.split('\\')[-2].lower() if '\\' in working_dir else working_dir.split('/')[-2].lower():
             models_file.write(
 f"""\n    def get_name(self):
@@ -586,13 +593,14 @@ f"""\n    def get_name(self):
             action='update'
         save_user_action(loggedin_user, self, action=action)
 """)
-        #!############# ENDS - 1 ##############
+        # ? ENDS SFTDox - 1 #
+
         models_file.write(
 f"""\n    class Meta:
         db_table = '{table_name}'
 """)
 
-    ##### ! ONLY FOR SFTDOX -2 #####
+    # ? ONLY FOR SFTDox - 2 #
     if 'sft_dms' in working_dir.split('\\')[-2].lower() if '\\' in working_dir else working_dir.split('/')[-2].lower():
         with open(f"{working_dir}/models.py", "r") as models_file:
             read_models_file = models_file.read()
@@ -601,66 +609,78 @@ f"""\n    class Meta:
             if not "exposed_request  = ''".lower() in read_models_file.lower():
                 models_file.write(f"""exposed_request  = ''\n\n""")
             models_file.write(read_models_file)
-    #!############# ENDS - 2 ##############
+    # ? ENDS SFTDox - 2 #
 
-
-    # ! AFTER MODEL CREATION MAKE CODE READABLE
-    # ? slizer view urls append as well
-
+    # * ################################################ Models Generation ENDs ############################################
 
 
 
+    # * ################################################ Admin.py Generation ###############################################
+    ...
+    # * ################################################ Admin.py Generation ENDs ##########################################
 
 
-    '''
-    # ? If file not exist then creates it. And append DYNAMIC content inside it.
-    if not os.path.isfile(working_dir + "/com." + project_name + "." + application_name + "/res.kts"):
-        with open(working_dir + "/com." + project_name + "." + application_name + "/res.kts", "w") as file:
-            # multi line f-string & use {{}} to print curly braces.
-            file.write(
-    f"""package com.{project_name}.{application_name}
-    import androidx.appcompat.app.AppCompatActivity import android.os.Bundle
 
-    class MainActivity : AppCompatActivity() {{
-    \toverride fun onCreate(savedInstanceState: Bundle?)
-    \t{{
-    \t\tsuper.onCreate(savedInstanceState)
-    \t\tsetContentView(R.layout.activity_main)
-    \t}}
-    }}
-    """)
-        print("res.kts file created....")
-    '''
-
-    # ? Check if file exists:-
-    # file_name = ""
-    # isFile = os.path.isfile(working_dir + "/" + file_name)
-    # isExist = os.path.exists(working_dir + "/" + file_name)
-
-    # ! in the end convert this .py file to .exe file and give it to the user.
-    # ? Make well documented code as you might need to edit this file later so you can do it easily later on.
-    # * have interactive messages for the user to see the progress of execution of code.
-
-    # ? Make .exe file of the script.
-    # ? https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9
-    # ? pip install auto-py-to-exe
-    # ? auto-py-to-exe (Enter), in settings - change output location.
+    # * ################################################ Serializers Generation ############################################
+    ...
+    # * ################################################ Serializers Generation ENDs #######################################
 
 
-    # with open(f"{working_dir}/models.py", "r") as models_file:
-    #     read_models_file = models_file.read()
 
-    # with open(f"{working_dir}/models.py", "w+") as models_file:
-    #     if not "from django.db import models".lower() in read_models_file.lower():
-    #         models_file.write(
-    # f"""from django.db import models
-    # \n""")
-    #     models_file.write(read_models_file)
+    # * ################################################ Views Generation ##################################################
+    ...
+    # * ################################################ Views Generation ENDs #############################################
 
-    # with open(f"{working_dir}/models.py", "a+") as models_file:
-    #     models_file.write(f""" """)
+
+
+    # * ################################################ Urls Generation ###################################################
+    ...
+    # * ################################################ Urls Generation ENDs ##############################################
 
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+# * ARCHIVES :-
+'''
+# ? If file not exist then creates it. And append DYNAMIC content inside it.
+if not os.path.isfile(working_dir + "/com." + project_name + "." + application_name + "/res.kts"):
+    with open(working_dir + "/com." + project_name + "." + application_name + "/res.kts", "w") as file:
+        # multi line f-string & use {{}} to print curly braces.
+        file.write(
+f"""package com.{project_name}.{application_name}
+import androidx.appcompat.app.AppCompatActivity import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {{
+\toverride fun onCreate(savedInstanceState: Bundle?)
+\t{{
+\t\tsuper.onCreate(savedInstanceState)
+\t\tsetContentView(R.layout.activity_main)
+\t}}
+}}
+""")
+    print("res.kts file created....")
+'''
+# with open(f"{working_dir}/models.py", "r") as models_file:
+#     read_models_file = models_file.read()
+
+# with open(f"{working_dir}/models.py", "w+") as models_file:
+#     if not "from django.db import models".lower() in read_models_file.lower():
+#         models_file.write(
+# f"""from django.db import models
+# \n""")
+#     models_file.write(read_models_file)
+
+# with open(f"{working_dir}/models.py", "a+") as models_file:
+#     models_file.write(f""" """)
+# ? Check if file exists:-
+# file_name = ""
+# isFile = os.path.isfile(working_dir + "/" + file_name)
+# isExist = os.path.exists(working_dir + "/" + file_name)
