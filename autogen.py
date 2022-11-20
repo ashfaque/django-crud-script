@@ -1,7 +1,5 @@
-# os.rename(f"{working_dir}/models1.py", f"{working_dir}/models.py")
-# ! CHECK IF THESE VARIABLES ARE VALID OR NOT
-# ! also create entries in admin.py, take bkup of it as well
-# ! choice for only model creation or full model, slizer, views, url creation?
+
+# ! USER INPUT VALIDATE
 # ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
 # ! define a function for the above reason and call it everytime.
 # ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
@@ -32,6 +30,19 @@ def main():
 
     print("\n\n"+"########## DJANGO MASTER API CREATOR ##########".center(120," ")+"\n")
     print("By Ashfaque Alam".center(120," ")+"\n\n")
+
+
+    # ? Taking user input for generation of only model or APIs with model
+    while True:
+        only_model_generate = input("Do you want to only generate model or CRUD APIs with model? \nWrite 'y' to only generate model and 'n' to generate both APIs and models\nEnter your choice: ")
+        checkExit(only_model_generate)
+        if only_model_generate.lower() == 'y':
+            only_model_generate = True
+            break
+        elif only_model_generate.lower() == 'n':
+            only_model_generate = False
+            break
+        else: print("Invalid choice !!!. Please enter either y or n.")
 
 
     # ? Taking working directory input from user
@@ -617,25 +628,43 @@ f"""\n    class Meta:
 
     # * ################################################ Admin.py Generation ###############################################
     ...
+    # ! create a .bak file
+    # ! Document # ?
+    # ! if user entered 0 then quit the execution of this program
+    # ! validate user inputs
     # * ################################################ Admin.py Generation ENDs ##########################################
 
 
 
-    # * ################################################ Serializers Generation ############################################
-    ...
-    # * ################################################ Serializers Generation ENDs #######################################
+    if not only_model_generate:    # ? If user wants to create both models and CRUD APIs.
+
+        # * ################################################ Serializers Generation ############################################
+        ...
+        # ! create a .bak file
+        # ! Document # ?
+        # ! if user entered 0 then quit the execution of this program
+        # ! validate user inputs
+        # * ################################################ Serializers Generation ENDs #######################################
 
 
 
-    # * ################################################ Views Generation ##################################################
-    ...
-    # * ################################################ Views Generation ENDs #############################################
+        # * ################################################ Views Generation ##################################################
+        ...
+        # ! create a .bak file
+        # ! Document # ?
+        # ! if user entered 0 then quit the execution of this program
+        # ! validate user inputs
+        # * ################################################ Views Generation ENDs #############################################
 
 
 
-    # * ################################################ Urls Generation ###################################################
-    ...
-    # * ################################################ Urls Generation ENDs ##############################################
+        # * ################################################ Urls Generation ###################################################
+        ...
+        # ! create a .bak file
+        # ! Document # ?
+        # ! if user entered 0 then quit the execution of this program
+        # ! validate user inputs
+        # * ################################################ Urls Generation ENDs ##############################################
 
 
 
@@ -684,3 +713,5 @@ class MainActivity : AppCompatActivity() {{
 # file_name = ""
 # isFile = os.path.isfile(working_dir + "/" + file_name)
 # isExist = os.path.exists(working_dir + "/" + file_name)
+
+# os.rename(f"{working_dir}/models1.py", f"{working_dir}/models.py")
