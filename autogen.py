@@ -6,6 +6,7 @@
 # ! define a function for the above reason and call it everytime.
 # ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
 # ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
+# ! support for SSCRM and PMS like dj apps
 # ! ------------------------------------------------------------------------------------------------------------------------
 
 
@@ -20,6 +21,7 @@ def main():
 
     import os, re
     from sys import platform, exit
+    # from ashfaquecodes.ashfaquecodes import red_print_start, blue_print_start, green_print_start, color_print_reset
 
     print("\n\n"+"########## DJANGO MASTER API CREATOR ##########".center(120," ")+"\n")
     print("By Ashfaque Alam".center(120," ")+"\n\n")
@@ -139,7 +141,7 @@ def main():
         while True:
             model_name = input("Enter model name to create: ")
             checkExit(model_name)
-            if not "class " + model_name.lower() in read_modelsfile.lower():
+            if not f"class {model_name.lower()}" + "(models.Model):".lower() in read_modelsfile.lower():
                 break
             else: print(f"\nModel {model_name} already exists in app {app_name}. Try a different name.")
             # models_file.seek(0, 2)                                              # ? Move the file pointer to the end of file. https://pynative.com/python-file-seek/    https://www.geeksforgeeks.org/python-seek-function/
@@ -280,11 +282,12 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                 field_name = field_name.lower()
                 # ? Finding if user input field name exists in current model. [By setting seek() position at current model starting position and finding afterwards. So, it will not look for the field_name in previous models.]
                 with open(f"{working_dir}/models.py", "r") as models_file:
-                    read_models_file = models_file.read()
-                    models_file.seek(read_models_file.index(f"class {model_name}(models.Model):"), 0)    # ? https://pynative.com/python-file-seek/#:~:text=The%20allowed    offset = after how many characters including space and newline as 1 char, whence = 0 -> starting of file, 1 -> current position, 2 -> End of file.
+                    read_models_file = models_file.readlines()
+                    # models_file.seek(read_models_file.index(f"class {model_name}(models.Model):"))    # ? From the position where this class of model defined, seek to that position, 0 in 2nd argument means start moving from the beginning of file, https://pynative.com/python-file-seek/#:~:text=The%20allowed    offset = after how many characters including space and newline as 1 char, whence = 0 -> starting of file, 1 -> current position, 2 -> End of file.
                     #print("----------------",read_models_file.index(f"class {model_name}(models.Model):"))
+                    offset_position_list = [models_file.tell() for line in read_models_file if f"class {model_name}(models.Model):" in line]    # ? Iterates over each lines of `read_models_file` and matches user entered model and picks its current offset position. fp.tell() is used to fetch the current position offset.
+                    models_file.seek(offset_position_list[0])
                     read_models_file = models_file.read()    # ? This time it will read after the seek position.
-                    #print("########################",read_models_file)    # ! For some reason its also reads a few line above this model
                     if f"{field_name} = models.".lower() in read_models_file.lower():
                         print(f"Field {field_name} already exists in model {model_name}. Please enter a different name.")
                     else: break
