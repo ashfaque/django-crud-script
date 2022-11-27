@@ -29,6 +29,16 @@ def checkExit(variable : str):
 
 
 
+def camelcase_to_snakecase_convert(string: str) -> str:
+    import re
+    # return re.sub(r'(?<!^)(?=[A-Z])', '_', string).lower()
+
+    # ? To handle more advanced cases
+    string = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', string)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', string).lower()
+
+
+
 def file_path_check_and_clean(user_prompt : str) -> str:
     from sys import platform
     import os, re
@@ -994,12 +1004,55 @@ class {model_name}ListView(APIView):
 
 
         # * ################################################ Urls Generation ###################################################
-        ...
-        # ! create a .bak file
-        # ! Document # ?
-        # ! if user entered 0 then quit the execution of this program
-        # ! validate user inputs
-        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
+
+        # ? Checking if urls.py exists, if not then asking use to enter the urls.py file path.
+        urls_path = f"{working_dir}/urls.py"
+        views_import_text = "from . import views"
+        if not os.path.isfile(urls_path):
+            urls_path = file_path_check_and_clean("Copy & Paste the path of urls.py from file explorer with drive letter: ")
+
+            views_dir_name = views_path.split('\\')[-2] if '\\' in views_path else views_path.split('/')[-2]
+            views_import_text = f"from {app_name} import {views_dir_name}"
+
+
+
+        # ? Making a backup of user urls.py file
+        with open(urls_path, "r") as readUrlsFile:
+            with open(f"{urls_path}.bak", "w") as readUrlsBakFile:
+                readUrlsBakFile.write(readUrlsFile.read())
+
+
+
+        # ? Reading existing contents of urls.py file
+        with open(urls_path, "r") as urls_file:
+            read_urls_file = urls_file.read()
+
+
+
+        # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
+        with open(urls_path, "w") as urls_file:
+            if not "from django.urls import path".lower() in read_urls_file.lower():
+                urls_file.write(f"""from django.urls import path\n""")
+
+            if not views_import_text.lower() in read_urls_file.lower():
+                urls_file.write(f"""{views_import_text}\n""")
+
+            urls_file.write(read_urls_file)
+
+
+        # ? CamelCase to snake_case convert using regex: https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+        # ? Generating new urls entry in urls.py file
+        
+        with open(urls_path, "a+") as urls_file:
+            urls_file.write(
+f"""\n\nurlpatterns += [
+    path('{camelcase_to_snakecase_convert(model_name)}_create/', views.{model_name}CreateView.as_view())
+    , path('{camelcase_to_snakecase_convert(model_name)}_edit/<pk>/', views.{model_name}EditView.as_view())
+    , path('{camelcase_to_snakecase_convert(model_name)}_delete/<pk>/', views.{model_name}DeleteView.as_view())
+    , path('{camelcase_to_snakecase_convert(model_name)}_list/', views.{model_name}ListView.as_view())
+]
+""")
+
         # * ################################################ Urls Generation ENDs ##############################################
 
 
