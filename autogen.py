@@ -687,6 +687,7 @@ f"""\n    class Meta:
     # ! Document # ?
     # ! if user entered 0 then quit the execution of this program
     # ! validate user inputs
+    # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
     # * ################################################ Admin.py Generation ENDs ##########################################
 
 
@@ -699,6 +700,7 @@ f"""\n    class Meta:
         # ! Document # ?
         # ! if user entered 0 then quit the execution of this program
         # ! validate user inputs
+        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
         # * ################################################ Serializers Generation ENDs #######################################
 
 
@@ -709,6 +711,7 @@ f"""\n    class Meta:
         # ! Document # ?
         # ! if user entered 0 then quit the execution of this program
         # ! validate user inputs
+        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
         # * ################################################ Views Generation ENDs #############################################
 
 
@@ -719,6 +722,7 @@ f"""\n    class Meta:
         # ! Document # ?
         # ! if user entered 0 then quit the execution of this program
         # ! validate user inputs
+        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
         # * ################################################ Urls Generation ENDs ##############################################
 
 
