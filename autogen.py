@@ -95,7 +95,7 @@ def main():
 
     # ? Taking working directory input from user
     while True:
-        working_dir = input("Copy & Paste the path of DJANGO APP from file explorer with drive letter.\nDjango App Path: ")
+        working_dir = input("\nCopy & Paste the path of DJANGO APP from file explorer with drive letter.\nDjango App Path: ")
         checkExit(working_dir)
         if working_dir \
             and ( \
@@ -143,7 +143,7 @@ def main():
     # ? Checking if models.py exists, if not then asking use to enter the models.py file path.
     models_path = f"{working_dir}/models.py"
     if not os.path.isfile(models_path):
-        models_path = file_path_check_and_clean("Copy & Paste the path of models.py from file explorer with drive letter: ")
+        models_path = file_path_check_and_clean("\nCopy & Paste the path of models.py from file explorer with drive letter: ")
 
 
 
@@ -682,12 +682,51 @@ f"""\n    class Meta:
 
 
     # * ################################################ Admin.py Generation ###############################################
-    ...
-    # ! create a .bak file
-    # ! Document # ?
-    # ! if user entered 0 then quit the execution of this program
-    # ! validate user inputs
-    # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
+
+    # ? Checking if admin.py exists, if not then asking use to enter the admin.py file path.
+    admin_path = f"{working_dir}/admin.py"
+    model_import_text = "from .models import *"
+    if not os.path.isfile(admin_path):
+        admin_path = file_path_check_and_clean("Copy & Paste the path of admin.py from file explorer with drive letter: ")
+        model_dir_name = admin_path.split('\\')[-2] if '\\' in admin_path else admin_path.split('/')[-2]
+        model_import_text = f"from {app_name} import {model_dir_name}"
+
+
+
+    # ? Making a backup of user admin.py file
+    with open(admin_path, "r") as readAdminFile:
+        with open(f"{admin_path}.bak", "w") as readAdminBakFile:
+            readAdminBakFile.write(readAdminFile.read())
+
+
+
+    # ? Reading existing contents of admin.py file
+    with open(admin_path, "r") as admin_file:
+        read_admin_file = admin_file.read()
+
+
+
+    # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
+    with open(admin_path, "w") as admin_file:
+        if not "from django.contrib import admin".lower() in read_admin_file.lower():
+            admin_file.write(f"""from django.contrib import admin\n""")
+
+        if not model_import_text.lower() in read_admin_file.lower():
+            admin_file.write(f"""{model_import_text}\n""")
+
+        admin_file.write(read_admin_file)
+
+
+
+    # ? Generating new admin entry in admin.py file
+    with open(admin_path, "a+") as admin_file:
+        admin_file.write(
+f"""\n\n@admin.register({model_name})
+class {model_name}(admin.ModelAdmin):
+    list_display = [field.name for field in {model_name}._meta.fields]
+    search_fields = ('__all__',)
+""")
+
     # * ################################################ Admin.py Generation ENDs ##########################################
 
 
