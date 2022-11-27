@@ -17,8 +17,56 @@
 
 
 def checkExit(variable : str):
+    from sys import exit
     if variable == '0':
         exit()
+
+
+
+def file_path_check_and_clean(user_prompt : str) -> str:
+    from sys import platform
+    import os, re
+
+    while True:
+        file_path = input(user_prompt)
+        checkExit(file_path)
+        if file_path \
+            and ( \
+                (file_path[0] == "\"" and file_path[-1] == "\"") \
+                or (file_path[0] == "\'" and file_path[-1] == "\'") \
+        ):      # ? If first & last char of path is " or ' then it will be removed.
+            file_path=file_path[1:-1]
+
+        if platform == "win32":    # ? If OS is Windows.
+            if file_path and file_path[0].isalpha() and file_path[1]==":" and (file_path[2]=="\\" or file_path[2]=="/"):      # ? If 1st char is case insensitive alphabet, 2nd char is a `:` & 3rd char is a `/` or `\`.
+                if os.path.exists(file_path[:3]):         # ? Check if drive letter exists.
+                    if os.path.isfile(file_path):         # ? Check if user given path points to a file ?
+                        break
+                    if os.path.isdir(file_path):      # ? If user given path doesn't have existing directory. It will create one.
+                        print("\n\n##### ENTERED PATH POINTS TO A DIRECTORY #####")
+                    # if os.path.exists(file_path):
+                    #     break
+                    else:
+                        print("\n\n##### PLEASE ENTER VALID PATH #####")
+                else:
+                    print("\n\n##### DRIVE LETTER DOESN'T EXIST #####")
+            else:
+                print("\n\n##### PLEASE ENTER VALID PATH #####")
+
+        elif platform == "linux" or platform == "linux2" or platform == "darwin":    # ? Checking if user OS is Linux or macOS.
+            if os.path.isfile(file_path):         # ? Check if user given path points to a file ?
+                break
+            elif os.path.isdir(file_path):      # ? If user given path doesn't have existing directory. It will create one.
+                print("\n\n##### DIR DOESN'T EXIST #####")
+            # elif os.path.exists(file_path):
+            #     break
+            else:
+                print("\n\n##### PLEASE ENTER VALID PATH #####")
+
+        else:
+            print("\n\n!!!!! UNSUPPORTED OPERATING SYSTEM !!!!!")
+
+    return file_path
 
 
 
@@ -42,7 +90,7 @@ def main():
         elif only_model_generate.lower() == 'n':
             only_model_generate = False
             break
-        else: print("Invalid choice !!!. Please enter either y or n.")
+        else: print("\n\nInvalid choice !!!. Please enter either y or n.")
 
 
     # ? Taking working directory input from user
@@ -92,15 +140,22 @@ def main():
 
     # * ################################################ Models Generation #################################################
 
+    # ? Checking if models.py exists, if not then asking use to enter the models.py file path.
+    models_path = f"{working_dir}/models.py"
+    if not os.path.isfile(models_path):
+        models_path = file_path_check_and_clean("Copy & Paste the path of models.py from file explorer with drive letter: ")
+
+
+
     # ? Making a backup of user models file
-    with open(f"{working_dir}/models.py", "r") as readModelsFile:
-        with open(f"{working_dir}/models.py.bak", "w") as readModelsBakFile:
+    with open(models_path, "r") as readModelsFile:
+        with open(f"{models_path}.bak", "w") as readModelsBakFile:
             readModelsBakFile.write(readModelsFile.read())
 
 
 
     # ? Generating new model in models.py file
-    with open(f"{working_dir}/models.py", "a+") as models_file:        # ? https://stackoverflow.com/questions/1466000/difference-between-modes-a-a-w-w-and-r-in-built-in-open-function
+    with open(models_path, "a+") as models_file:        # ? https://stackoverflow.com/questions/1466000/difference-between-modes-a-a-w-w-and-r-in-built-in-open-function
         models_file.seek(0)                                            # ? Move file pointer to the beginning of the file.
         read_modelsfile = models_file.read()
 
@@ -176,9 +231,9 @@ f"""\n\n\nclass {model_name}(models.Model):
     # ? https://stackoverflow.com/a/49546923/16377463
 
     # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
-    with open(f"{working_dir}/models.py", "r") as models_file:
+    with open(models_path, "r") as models_file:
         read_models_file = models_file.read()
-    with open(f"{working_dir}/models.py", "w") as models_file:
+    with open(models_path, "w") as models_file:
         if not "from django.db import models".lower() in read_models_file.lower():
             models_file.write(f"""from django.db import models\n""")
 
@@ -186,8 +241,8 @@ f"""\n\n\nclass {model_name}(models.Model):
             if not "from django.utils import timezone".lower() in read_models_file.lower():
                 models_file.write(f"""from django.utils import timezone\n""")
 
-        if not "from .models import *".lower() in read_models_file.lower():
-            models_file.write(f"""from .models import *\n""")
+        # if not "from .models import *".lower() in read_models_file.lower():
+        #     models_file.write(f"""from .models import *\n""")
 
         if 'settings'.lower() in user_model.lower():
             if not "from django.conf import settings".lower() in read_models_file.lower():
@@ -206,7 +261,7 @@ f"""\n\n\nclass {model_name}(models.Model):
 
 
     # ? Taking table name from user
-    with open(f"{working_dir}/models.py", "r") as models_file:
+    with open(models_path, "r") as models_file:
         read_models_file = models_file.read()
     while True:
         table_name = input("Enter database table name: ")
@@ -268,7 +323,7 @@ f"""\n\n\nclass {model_name}(models.Model):
                     else: break
                 if related_name_initial == '':
                     related_name_initial = model_name
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     # modelsfile.seek(0, 2)    # ? Seeking to end of file
                     if is_timezone.lower() == 'y':
                         models_file.write(
@@ -299,7 +354,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                 checkExit(field_name)
                 field_name = field_name.lower()
                 # ? Finding if user input field name exists in current model. [By setting seek() position at current model starting position and finding afterwards. So, it will not look for the field_name in previous models.]
-                with open(f"{working_dir}/models.py", "r") as models_file:
+                with open(models_path, "r") as models_file:
                     read_models_file = models_file.readlines()
                     # models_file.seek(read_models_file.index(f"class {model_name}(models.Model):"))    # ? From the position where this class of model defined, seek to that position, 0 in 2nd argument means start moving from the beginning of file, https://pynative.com/python-file-seek/#:~:text=The%20allowed    offset = after how many characters including space and newline as 1 char, whence = 0 -> starting of file, 1 -> current position, 2 -> End of file.
                     #print("----------------",read_models_file.index(f"class {model_name}(models.Model):"))
@@ -317,28 +372,28 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                 is_user_fkey = input("Is it a user model foreign key? (y / n): ")
                 checkExit(is_user_fkey)
                 if is_user_fkey.lower() == 'y':
-                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                    with open(models_path, "a+") as models_file:
                         models_file.write(f"""\n    {field_name} = models.ForeignKey({user_model}, on_delete=models.CASCADE, null=True, blank=True, related_name='{related_name}')""")
                     print(f"\nUsing model {user_model} for foreign key relationship.")
                 else:
                     fkey_model = input("Enter foreign key model name: ")
                     checkExit(fkey_model)
                     # ? Checking if the foreign key model exists in same file.
-                    with open(f"{working_dir}/models.py", "r") as models_file:
+                    with open(models_path, "r") as models_file:
                         read_models_file = models_file.read()
                     # ? If not exists in current model. Then asking user for foreign key model and importing in current model.
                     if not "class " + fkey_model.lower() + "(" in read_models_file.lower():
                         print(f"The model {fkey_model} doesn't exists in the models file of {app_name}.")
                         fkey_model_app = input(f"Enter APP name of model {fkey_model}: ")
                         checkExit(fkey_model_app)
-                        with open(f"{working_dir}/models.py", "r") as models_file:
+                        with open(models_path, "r") as models_file:
                             read_models_file = models_file.read()
-                        with open(f"{working_dir}/models.py", "w") as models_file:
+                        with open(models_path, "w") as models_file:
                             if not f"from {fkey_model_app} import {fkey_model}".lower() in read_models_file.lower():
                                 models_file.write(f"""from {fkey_model_app} import {fkey_model}\n""")
                             models_file.write(read_models_file)
 
-                    with open(f"{working_dir}/models.py", "a+") as models_file:
+                    with open(models_path, "a+") as models_file:
                         models_file.write(f"""\n    {field_name} = models.ForeignKey({fkey_model}, on_delete=models.CASCADE, null=True, blank=True, related_name='{related_name}')""")
                 break    # ? Inside `if field_type == 1:` which breaks inner while loop.
 
@@ -353,7 +408,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         choice_values = input("Enter choice values like shown in the above example: ")
                         checkExit(choice_values)
                         choice_values_list = choice_values.split(",")
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_values_list:
                                 models_file.write(f"""\n        ('{each_choice.split(':')[0].lower()}', '{each_choice.split(':')[1].lower()}'),""")
@@ -385,7 +440,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         max_length = '255'
                     break
 
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     models_file.write(f"""\n    {field_name} = models.CharField(""")
                     if is_choice.lower() == 'y':
                         models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
@@ -397,7 +452,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 
 
             elif field_type == 3:    # ? Adding TextField
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     models_file.write(f"""\n    {field_name} = models.TextField(blank=True, null=True)""")
                 break    # ? Inside `if field_type == 3:` which breaks inner while loop.
 
@@ -424,7 +479,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                             if all_int_flag == 1:
                                 break
 
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_pair_values_list:
                                 models_file.write(f"""\n        ('{each_choice.split(':')[0]}', '{each_choice.split(':')[1].lower()}'),""")
@@ -451,7 +506,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         break
                     else: print("Invalid choice !!!. Please enter either y or n.")
 
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     models_file.write(f"""\n    {field_name} = models.IntegerField(""")
                     if is_choice.lower() == 'y':
                         models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
@@ -483,7 +538,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                             if all_float_flag == 1:
                                 break
 
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_pair_values_list:
                                 # ? Adding 0 to the starting and ending of the key it it starts with a dot (.)
@@ -511,7 +566,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         break
                     else: print("Invalid choice !!!. Please enter either y or n.")
 
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     models_file.write(f"""\n    {field_name} = models.FloatField(""")
                     if is_choice.lower() == 'y':
                         models_file.write(f"""choices={field_name.upper()}_CHOICE, """)
@@ -533,7 +588,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         break
                     else: print("Invalid default value !!!. Please enter either t or f.")
 
-                with open(f"{working_dir}/models.py", "a+") as models_file:
+                with open(models_path, "a+") as models_file:
                     models_file.write(f"""\n    {field_name} = models.BooleanField(default={default})""")
                 break    # ? Inside `if field_type == 6:` which breaks inner while loop.
 
@@ -543,12 +598,12 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     is_auto_add_now = input("Do you want it to add current time by default? (y / n): ")
                     checkExit(is_auto_add_now)
                     if is_auto_add_now.lower() == 'y':
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             if is_timezone.lower() == 'y': models_file.write(f"""\n    {field_name} = models.DateTimeField(default=timezone.now, blank=True, null=True)""")
                             else: models_file.write(f"""\n    {field_name} = models.DateTimeField(auto_now_add=True, blank=True, null=True)""")
                             break
                     elif is_auto_add_now.lower() == 'n':
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name} = models.DateTimeField(blank=True, null=True)""")
                         break
                     else: print("Invalid default value !!!. Please enter either y or n.")
@@ -560,12 +615,12 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                     is_auto_add_now = input("Do you want it to add current time by default? (y / n): ")
                     checkExit(is_auto_add_now)
                     if is_auto_add_now.lower() == 'y':
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             if is_timezone.lower() == 'y': models_file.write(f"""\n    {field_name} = models.DateField(default=timezone.now, blank=True, null=True)""")
                             else: models_file.write(f"""\n    {field_name} = models.DateField(auto_now_add=True, blank=True, null=True)""")
                             break
                     elif is_auto_add_now.lower() == 'n':
-                        with open(f"{working_dir}/models.py", "a+") as models_file:
+                        with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name} = models.DateField(blank=True, null=True)""")
                         break
                     else: print("Invalid default value !!!. Please enter either y or n.")
@@ -580,7 +635,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
 
 
 
-    with open(f"{working_dir}/models.py", "a+") as models_file:
+    with open(models_path, "a+") as models_file:
         models_file.write(
 f"""\n    def __str__(self):
         return str(self.id)
@@ -613,10 +668,10 @@ f"""\n    class Meta:
 
     # ? ONLY FOR SFTDox - 2 #
     if 'sft_dms' in working_dir.split('\\')[-2].lower() if '\\' in working_dir else working_dir.split('/')[-2].lower():
-        with open(f"{working_dir}/models.py", "r") as models_file:
+        with open(models_path, "r") as models_file:
             read_models_file = models_file.read()
 
-        with open(f"{working_dir}/models.py", "w+") as models_file:
+        with open(models_path, "w+") as models_file:
             if not "exposed_request  = ''".lower() in read_models_file.lower():
                 models_file.write(f"""exposed_request  = ''\n\n""")
             models_file.write(read_models_file)
