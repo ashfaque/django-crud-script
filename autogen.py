@@ -167,6 +167,7 @@ def main():
     with open(models_path, "r") as readModelsFile:
         with open(f"{models_path}.bak", "w") as readModelsBakFile:
             readModelsBakFile.write(readModelsFile.read())
+    models_backup_file_path = f"{models_path}.bak"
 
 
 
@@ -693,6 +694,10 @@ f"""\n    class Meta:
             models_file.write(read_models_file)
     # ? ENDS SFTDox - 2 #
 
+    # ? Deleting backup models file as models codes generation was successful because code executed at this point.
+    if os.path.isfile(models_backup_file_path):
+        os.remove(models_backup_file_path)
+
     # * ################################################ Models Generation ENDs ############################################
 
 
@@ -713,7 +718,7 @@ f"""\n    class Meta:
     with open(admin_path, "r") as readAdminFile:
         with open(f"{admin_path}.bak", "w") as readAdminBakFile:
             readAdminBakFile.write(readAdminFile.read())
-
+    admin_backup_file_path = f"{admin_path}.bak"
 
 
     # ? Reading existing contents of admin.py file
@@ -743,6 +748,10 @@ class {model_name}(admin.ModelAdmin):
     search_fields = ('__all__',)
 """)
 
+    # ? Deleting backup admin file as admin codes generation was successful because code executed at this point.
+    if os.path.isfile(admin_backup_file_path):
+        os.remove(admin_backup_file_path)
+
     # * ################################################ Admin.py Generation ENDs ##########################################
 
 
@@ -764,6 +773,7 @@ class {model_name}(admin.ModelAdmin):
         with open(serializers_path, "r") as readSerializersFile:
             with open(f"{serializers_path}.bak", "w") as readSerializersBakFile:
                 readSerializersBakFile.write(readSerializersFile.read())
+        serializers_backup_file_path = f"{serializers_path}.bak"
 
 
 
@@ -816,6 +826,10 @@ class {model_name}DeleteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 """)
 
+        # ? Deleting backup serializers file as serializers codes generation was successful because code executed at this point.
+        if os.path.isfile(serializers_backup_file_path):
+            os.remove(serializers_backup_file_path)
+
         # * ################################################ Serializers Generation ENDs #######################################
 
 
@@ -841,6 +855,7 @@ class {model_name}DeleteSerializer(serializers.ModelSerializer):
         with open(views_path, "r") as readViewsFile:
             with open(f"{views_path}.bak", "w") as readViewsBakFile:
                 readViewsBakFile.write(readViewsFile.read())
+        views_backup_file_path = f"{views_path}.bak"
 
 
 
@@ -999,6 +1014,10 @@ class {model_name}ListView(APIView):
         return Response(response)
 """)
 
+        # ? Deleting backup views file as views codes generation was successful because code executed at this point.
+        if os.path.isfile(views_backup_file_path):
+            os.remove(views_backup_file_path)
+
         # * ################################################ Views Generation ENDs #############################################
 
 
@@ -1020,7 +1039,7 @@ class {model_name}ListView(APIView):
         with open(urls_path, "r") as readUrlsFile:
             with open(f"{urls_path}.bak", "w") as readUrlsBakFile:
                 readUrlsBakFile.write(readUrlsFile.read())
-
+        urls_backup_file_path = f"{urls_path}.bak"
 
 
         # ? Reading existing contents of urls.py file
@@ -1052,6 +1071,10 @@ f"""\n\nurlpatterns += [
     , path('{camelcase_to_snakecase_convert(model_name)}_list/', views.{model_name}ListView.as_view())
 ]
 """)
+
+        # ? Deleting backup urls file as urls codes generation was successful because code executed at this point.
+        if os.path.isfile(urls_backup_file_path):
+            os.remove(urls_backup_file_path)
 
         # * ################################################ Urls Generation ENDs ##############################################
 
