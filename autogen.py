@@ -1067,25 +1067,6 @@ if __name__ == "__main__":
 
 
 # * ARCHIVES :-
-'''
-# ? If file not exist then creates it. And append DYNAMIC content inside it.
-if not os.path.isfile(working_dir + "/com." + project_name + "." + application_name + "/res.kts"):
-    with open(working_dir + "/com." + project_name + "." + application_name + "/res.kts", "w") as file:
-        # multi line f-string & use {{}} to print curly braces.
-        file.write(
-f"""package com.{project_name}.{application_name}
-import androidx.appcompat.app.AppCompatActivity import android.os.Bundle
-
-class MainActivity : AppCompatActivity() {{
-\toverride fun onCreate(savedInstanceState: Bundle?)
-\t{{
-\t\tsuper.onCreate(savedInstanceState)
-\t\tsetContentView(R.layout.activity_main)
-\t}}
-}}
-""")
-    print("res.kts file created....")
-'''
 # with open(f"{working_dir}/models.py", "r") as models_file:
 #     read_models_file = models_file.read()
 
