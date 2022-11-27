@@ -1,6 +1,7 @@
 
 # ! USER INPUT VALIDATE
 # ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
+# ! https://stackoverflow.com/questions/65627122/moving-file-to-recycle-bin
 # ! define a function for the above reason and call it everytime.
 # ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
 # ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
@@ -12,6 +13,11 @@
 # ? https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9
 # ? pip install auto-py-to-exe
 # ? auto-py-to-exe (Enter), in settings - change output location.
+# ! create a .bak file
+# ! Document # ?
+# ! if user entered 0 then quit the execution of this program
+# ! validate user inputs
+# ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
 # ! ------------------------------------------------------------------------------------------------------------------------
 
 
@@ -734,12 +740,73 @@ class {model_name}(admin.ModelAdmin):
     if not only_model_generate:    # ? If user wants to create both models and CRUD APIs.
 
         # * ################################################ Serializers Generation ############################################
-        ...
-        # ! create a .bak file
-        # ! Document # ?
-        # ! if user entered 0 then quit the execution of this program
-        # ! validate user inputs
-        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
+        # ? Checking if serializers.py exists, if not then asking use to enter the serializers.py file path.
+        serializers_path = f"{working_dir}/serializers.py"
+        model_import_text = "from .models import *"
+        if not os.path.isfile(serializers_path):
+            serializers_path = file_path_check_and_clean("Copy & Paste the path of serializers.py from file explorer with drive letter: ")
+            serializers_file_name = serializers_path.split('\\')[-1].split('.')[0] if '\\' in serializers_path else serializers_path.split('/')[-1].split('.')[0]    # Picking file name without .py extension.
+            model_dir_name = serializers_path.split('\\')[-2] if '\\' in serializers_path else serializers_path.split('/')[-2]
+            model_import_text = f"from {app_name} import {model_dir_name}\nfrom {app_name}.{model_dir_name}.{serializers_file_name} import *"
+
+
+
+        # ? Making a backup of user serializers.py file
+        with open(serializers_path, "r") as readSerializersFile:
+            with open(f"{serializers_path}.bak", "w") as readSerializersBakFile:
+                readSerializersBakFile.write(readSerializersFile.read())
+
+
+
+        # ? Reading existing contents of serializers.py file
+        with open(serializers_path, "r") as serializers_file:
+            read_serializers_file = serializers_file.read()
+
+
+
+        # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
+        with open(serializers_path, "w") as serializers_file:
+            if not "from rest_framework import serializers".lower() in read_serializers_file.lower():
+                serializers_file.write(f"""from rest_framework import serializers\n""")
+
+            if not "import datetime".lower() in read_serializers_file.lower():
+                serializers_file.write(f"""import datetime\n""")
+
+            if not model_import_text.lower() in read_serializers_file.lower():
+                serializers_file.write(f"""{model_import_text}\n""")
+
+            serializers_file.write(read_serializers_file)
+
+
+
+        # ? Generating new serializers entry in serializers.py file
+        with open(serializers_path, "a+") as serializers_file:
+            serializers_file.write(
+f"""\n\nclass {model_name}CreateSerializer(serializers.ModelSerializer):
+    created_by = serializers.CharField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = {model_name}
+        fields = '__all__'
+
+
+class {model_name}EditSerializer(serializers.ModelSerializer):
+    updated_by = serializers.CharField(default=serializers.CurrentUserDefault())
+    updated_at = serializers.DateTimeField(default=datetime.datetime.now())
+    class Meta:
+        model = {model_name}
+        fields = '__all__'
+
+
+class {model_name}DeleteSerializer(serializers.ModelSerializer):
+    deleted_by = serializers.CharField(default=serializers.CurrentUserDefault())
+    is_deleted = serializers.BooleanField(default=True)
+    deleted_at = serializers.DateTimeField(default=datetime.datetime.now())
+
+    class Meta:
+        model = {model_name}
+        fields = '__all__'
+""")
+
         # * ################################################ Serializers Generation ENDs #######################################
 
 
