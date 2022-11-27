@@ -694,7 +694,7 @@ f"""\n    class Meta:
     model_import_text = "from .models import *"
     if not os.path.isfile(admin_path):
         admin_path = file_path_check_and_clean("Copy & Paste the path of admin.py from file explorer with drive letter: ")
-        model_dir_name = admin_path.split('\\')[-2] if '\\' in admin_path else admin_path.split('/')[-2]
+        model_dir_name = models_path.split('\\')[-2] if '\\' in models_path else models_path.split('/')[-2]
         model_import_text = f"from {app_name} import {model_dir_name}"
 
 
@@ -745,9 +745,8 @@ class {model_name}(admin.ModelAdmin):
         model_import_text = "from .models import *"
         if not os.path.isfile(serializers_path):
             serializers_path = file_path_check_and_clean("Copy & Paste the path of serializers.py from file explorer with drive letter: ")
-            serializers_file_name = serializers_path.split('\\')[-1].split('.')[0] if '\\' in serializers_path else serializers_path.split('/')[-1].split('.')[0]    # Picking file name without .py extension.
-            model_dir_name = serializers_path.split('\\')[-2] if '\\' in serializers_path else serializers_path.split('/')[-2]
-            model_import_text = f"from {app_name} import {model_dir_name}\nfrom {app_name}.{model_dir_name}.{serializers_file_name} import *"
+            model_dir_name = models_path.split('\\')[-2] if '\\' in models_path else models_path.split('/')[-2]
+            model_import_text = f"from {app_name} import {model_dir_name}"
 
 
 
@@ -812,12 +811,184 @@ class {model_name}DeleteSerializer(serializers.ModelSerializer):
 
 
         # * ################################################ Views Generation ##################################################
-        ...
-        # ! create a .bak file
-        # ! Document # ?
-        # ! if user entered 0 then quit the execution of this program
-        # ! validate user inputs
-        # ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
+
+        # ? Checking if views.py exists, if not then asking use to enter the views.py file path.
+        views_path = f"{working_dir}/views.py"
+        model_import_text = "from .models import *"
+        serializers_import_text = "from .serializers import *"
+        if not os.path.isfile(views_path):
+            views_path = file_path_check_and_clean("Copy & Paste the path of views.py from file explorer with drive letter: ")
+
+            model_dir_name = models_path.split('\\')[-2] if '\\' in models_path else models_path.split('/')[-2]
+            model_import_text = f"from {app_name} import {model_dir_name}"
+
+            serializers_dir_name = serializers_path.split('\\')[-2] if '\\' in serializers_path else serializers_path.split('/')[-2]
+            serializers_import_text = f"from {app_name} import {serializers_dir_name}"
+
+
+
+        # ? Making a backup of user views.py file
+        with open(views_path, "r") as readViewsFile:
+            with open(f"{views_path}.bak", "w") as readViewsBakFile:
+                readViewsBakFile.write(readViewsFile.read())
+
+
+
+        # ? Reading existing contents of views.py file
+        with open(views_path, "r") as views_file:
+            read_views_file = views_file.read()
+
+
+
+        # ? If import doesn't exist, it copies all data of file to a variable then auto generates import at the beginning of the file and paste old content after that.
+        with open(views_path, "w") as views_file:
+            if not "from rest_framework.permissions import IsAuthenticated".lower() in read_views_file.lower():
+                views_file.write(f"""from rest_framework.permissions import IsAuthenticated\n""")
+
+            if not "from knox.auth import TokenAuthentication".lower() in read_views_file.lower():
+                views_file.write(f"""from knox.auth import TokenAuthentication\n""")
+
+            if not "from rest_framework import generics".lower() in read_views_file.lower():
+                views_file.write(f"""from rest_framework import generics\n""")
+
+            if not "from rest_framework.views import APIView".lower() in read_views_file.lower():
+                views_file.write(f"""from rest_framework.views import APIView\n""")
+
+            if not "from rest_framework.response import Response".lower() in read_views_file.lower():
+                views_file.write(f"""from rest_framework.response import Response\n""")
+
+            if not "from django.db.models import Q, F".lower() in read_views_file.lower():
+                views_file.write(f"""from django.db.models import Q, F\n""")
+
+            if not model_import_text.lower() in read_views_file.lower():
+                views_file.write(f"""{model_import_text}\n""")
+
+            if not serializers_import_text.lower() in read_views_file.lower():
+                views_file.write(f"""{serializers_import_text}\n""")
+
+            if 'sft_dms' in working_dir.split('\\') if '\\' in working_dir else working_dir.split('/'):    # ? For SFTDox only
+                if not "from sft_docs.base_paginations import OnOffPagination".lower() in read_views_file.lower():
+                    views_file.write(f"""from sft_docs.base_paginations import OnOffPagination\n""")
+
+                if not "from sft_docs.base_functions import get_sorted_by_fields".lower() in read_views_file.lower():
+                    views_file.write(f"""from sft_docs.base_functions import get_sorted_by_fields\n""")
+
+                if not f"""from sft_docs.base_decorators import (
+                                    response_modify_decorator_post
+                                    , response_modify_decorator_get
+                                    , response_modify_decorator_update
+                                    , response_modify_decorator_list_or_get_after_execution_for_onoff_pagination\n""".lower() in read_views_file.lower():
+                    views_file.write(f"""from sft_docs.base_decorators import (
+                                    response_modify_decorator_post
+                                    , response_modify_decorator_get
+                                    , response_modify_decorator_update
+                                    , response_modify_decorator_list_or_get_after_execution_for_onoff_pagination
+                                )\n""")
+
+            else:
+                if not "from pagination import OnOffPagination".lower() in read_views_file.lower():
+                    views_file.write(f"""from pagination import OnOffPagination\n""")
+
+                if not "from global_function import get_sorted_by_fields".lower() in read_views_file.lower():
+                    views_file.write(f"""from global_function import get_sorted_by_fields\n""")
+
+                if not "from django.db.models import Q, F".lower() in read_views_file.lower():
+                    views_file.write(f"""from custom_decorator import (
+                            response_modify_decorator_post
+                            , response_modify_decorator_get
+                            , response_modify_decorator_update
+                            , response_modify_decorator_list_or_get_after_execution_for_onoff_pagination
+                        )\n""")
+
+            views_file.write(read_views_file)
+
+
+
+        # ? Generating new views entry in views.py file
+        with open(views_path, "a+") as views_file:
+            views_file.write(
+f"""\n\nclass {model_name}CreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = {model_name}.objects.all()
+    serializer_class = {model_name}CreateSerializer
+
+    @response_modify_decorator_post
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class {model_name}EditView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = {model_name}.objects.all()
+    serializer_class = {model_name}EditSerializer
+
+    @response_modify_decorator_get
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @response_modify_decorator_update
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+
+class {model_name}DeleteView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = {model_name}.objects.all()
+    serializer_class = {model_name}DeleteSerializer
+
+    @response_modify_decorator_update
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+
+class {model_name}ListView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = {model_name}.objects.filter(is_deleted = False).values()
+
+    def get_filter(self):
+        filter = {{}}
+        exclude = {{}}
+        or_filter = Q()    # If want to include `or` conditon in filter.
+
+        searchkey = self.request.query_params.get('searchkey', None)
+
+        if searchkey:
+            filter['searchkey__icontains'] = searchkey
+
+        queryset = self.queryset.filter(**filter).filter(or_filter).exclude(**exclude).order_by('-id')
+        return queryset
+
+    @response_modify_decorator_list_or_get_after_execution_for_onoff_pagination
+    def get(self, request, *args, **kwargs):
+        count = self.request.query_params.get('count')
+
+        # Pagination Functionality
+        paginator = OnOffPagination()
+        page_size = self.request.GET['page_size']
+
+        # Filter
+        self.queryset = self.get_filter()
+
+        field_name = self.request.query_params.get('ordering')
+        if field_name:
+            self.queryset = get_sorted_by_fields(self, self.queryset)
+
+        if page_size == '0':
+                response = self.queryset
+            if count:
+                count = len(response)
+                return Response({{'total_count': count}})
+        else:
+            result_page = paginator.paginate_queryset(self.queryset, request)
+            response = paginator.get_paginated_response(result_page)
+            response = response.data
+        return Response(response)
+""")
+
         # * ################################################ Views Generation ENDs #############################################
 
 
