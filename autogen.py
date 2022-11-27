@@ -1,24 +1,10 @@
 
-# ! USER INPUT VALIDATE
-# ! If user press 0 any time. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other views urls slizer(check if urls and slizer exists if not exists then after cancel don't have urls and slizer leftover)
-# ! https://stackoverflow.com/questions/65627122/moving-file-to-recycle-bin
-# ! define a function for the above reason and call it everytime.
-# ! in charfield option for do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
-# ! URLS SERIALIZER VIEWS BAK. RED MSG AFTER HEADLINE THAT A BAK FILE IS AUTO GENERATED CONTAINING YOUR OLDER MODELS SLIZER VIEWS URLS FILE IF YOU TERMINATED THIS PROGRAM IN B/W ELSE. AA-REMOVE IT IN BACKGROUND AFTER PROGRAM ENDS.
-# ! support for SSCRM and PMS like dj apps
-# ! support for linux + macos + windows
-# ! in the end convert this .py file to .exe file and give it to the user.
-# ! Make well documented code as you might need to edit this file later so you can do it easily later on.
-# ! have interactive messages for the user to see the progress of execution of code.
 # ? https://towardsdatascience.com/how-to-easily-convert-a-python-script-to-an-executable-file-exe-4966e253c7e9
 # ? pip install auto-py-to-exe
 # ? auto-py-to-exe (Enter), in settings - change output location.
-# ! create a .bak file
-# ! Document # ?
-# ! if user entered 0 then quit the execution of this program
-# ! validate user inputs
-# ! from `working_dir` auto pick file after assigning to a var, if path is not a file then ask for user input for file path and pass to function file_path_check_and_clean() and use it, assign its o/p to a var and use it
-# ! ------------------------------------------------------------------------------------------------------------------------
+# ? ------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -1086,6 +1072,14 @@ if __name__ == "__main__":
 
 
 
+
+# ? ----------------
+# ? Future Scopes :-
+# ? ----------------
+# If user enters 0 anytime. Current models.py is deleted and .bak file is renamed to models.py file. And same happens to other serializers, views, urls. Check if models, serializers, views, urls exists. Ff not then after cancel don't have models, serializers, views, urls leftover.
+# Instead of perma deleting .bak files we can move it to trash using (pip install Send2Trash; from send2trash import send2trash; path_to_delete = path_to_delete.replace("/", "\\"); send2trash(path_to_delete)): https://stackoverflow.com/questions/65627122/moving-file-to-recycle-bin
+# In models codes generation, charfield option for, do you want digits or both char in options show example. (1,sdlkjf) or (lksdf, lksjdf)
+# Every user inputs validate
 
 
 
