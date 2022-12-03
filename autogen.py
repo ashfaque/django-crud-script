@@ -989,7 +989,7 @@ class {model_name}ListView(APIView):
             self.queryset = get_sorted_by_fields(self, self.queryset)
 
         if page_size == '0':
-                response = self.queryset
+            response = self.queryset
             if count:
                 count = len(response)
                 return Response({{'total_count': count}})
