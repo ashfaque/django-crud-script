@@ -414,7 +414,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_values_list:
-                                models_file.write(f"""\n        ('{each_choice.split(':')[0].lower()}', '{each_choice.split(':')[1].lower()}'),""")
+                                models_file.write(f"""\n        ('{each_choice.split(':')[0]}', '{each_choice.split(':')[1]}'),""")
                             models_file.write(f"""\n    )""")
                         break
                     elif is_choice.lower() == 'n': break
@@ -485,7 +485,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                         with open(models_path, "a+") as models_file:
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_pair_values_list:
-                                models_file.write(f"""\n        ('{each_choice.split(':')[0]}', '{each_choice.split(':')[1].lower()}'),""")
+                                models_file.write(f"""\n        ('{each_choice.split(':')[0]}', '{each_choice.split(':')[1]}'),""")
                             models_file.write(f"""\n    )""")
                         break
                     elif is_choice.lower() == 'n': break
@@ -545,7 +545,7 @@ f"""\n    is_deleted = models.BooleanField(default=False)
                             models_file.write(f"""\n    {field_name.upper()}_CHOICE = (""")
                             for each_choice in choice_pair_values_list:
                                 # ? Adding 0 to the starting and ending of the key it it starts with a dot (.)
-                                models_file.write(f"""\n        ('{each_choice.split(':')[0] if not (each_choice.split(':')[0][0] == '.') and not (each_choice.split(':')[0][-1] == '.') else ('0' + each_choice.split(':')[0]) if (each_choice.split(':')[0][0] == '.') else (each_choice.split(':')[0] + '0') if (each_choice.split(':')[0][-1] == '.') else "0.0"}', '{each_choice.split(':')[1].lower()}'),""")
+                                models_file.write(f"""\n        ('{each_choice.split(':')[0] if not (each_choice.split(':')[0][0] == '.') and not (each_choice.split(':')[0][-1] == '.') else ('0' + each_choice.split(':')[0]) if (each_choice.split(':')[0][0] == '.') else (each_choice.split(':')[0] + '0') if (each_choice.split(':')[0][-1] == '.') else "0.0"}', '{each_choice.split(':')[1]}'),""")
                             models_file.write(f"""\n    )""")
                         break
                     elif is_choice.lower() == 'n': break
